@@ -1,25 +1,17 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRef } from "react"
+
+import type React from "react"
+
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import {
-  Calculator,
-  TrendingUp,
-  DollarSign,
-  BarChart3,
-  Zap,
-  Search,
-  ExternalLink,
-  Mail,
-  Target,
-  PieChart,
-  Calendar,
-} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calculator, TrendingUp, Users, Calendar, Target, DollarSign, Search, Filter, Clock, Zap } from "lucide-react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -27,700 +19,635 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const tools = [
-  {
-    id: 1,
-    title: "ROI Calculator",
-    description: "Calculate the return on investment for your content marketing efforts with detailed breakdowns.",
-    category: "Analytics",
-    icon: DollarSign,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-    featured: true,
-    slug: "roi-calculator",
-    component: "ROICalculator",
-  },
-  {
-    id: 2,
-    title: "Engagement Rate Analyzer",
-    description: "Analyze and optimize your social media engagement rates across all platforms.",
-    category: "Social Media",
-    icon: TrendingUp,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    slug: "engagement-analyzer",
-    component: "EngagementAnalyzer",
-  },
-  {
-    id: 3,
-    title: "Newsletter Growth Tracker",
-    description: "Track and predict your newsletter subscriber growth with advanced analytics.",
-    category: "Email Marketing",
-    icon: Mail,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    slug: "newsletter-tracker",
-    component: "NewsletterTracker",
-  },
-  {
-    id: 4,
-    title: "Content Calendar Generator",
-    description: "Generate optimized content calendars for consistent publishing across platforms.",
-    category: "Planning",
-    icon: Calendar,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-    slug: "content-calendar",
-    component: "ContentCalendar",
-  },
-  {
-    id: 5,
-    title: "Audience Targeting Tool",
-    description: "Identify and target your ideal audience segments with precision.",
-    category: "Marketing",
-    icon: Target,
-    color: "text-red-600",
-    bgColor: "bg-red-50",
-    slug: "audience-targeting",
-    component: "AudienceTargeting",
-  },
-  {
-    id: 6,
-    title: "Revenue Forecasting",
-    description: "Predict future revenue based on current growth trends and market analysis.",
-    category: "Analytics",
-    icon: PieChart,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50",
-    slug: "revenue-forecasting",
-    component: "RevenueForecasting",
-  },
-]
+interface Tool {
+  id: string
+  name: string
+  description: string
+  category: string
+  icon: React.ReactNode
+  difficulty: "Beginner" | "Intermediate" | "Advanced"
+  estimatedTime: string
+  component: React.ReactNode
+}
 
-const categories = ["All", "Analytics", "Social Media", "Email Marketing", "Planning", "Marketing"]
+// ROI Calculator Component
+function ROICalculator() {
+  const [investment, setInvestment] = useState("")
+  const [revenue, setRevenue] = useState("")
+  const [roi, setROI] = useState<number | null>(null)
 
-// Tool Components
-const ROICalculator = () => {
-  const [investment, setInvestment] = useState(1000)
-  const [revenue, setRevenue] = useState(3000)
-  const [timeframe, setTimeframe] = useState(12)
-
-  const roi = ((revenue - investment) / investment) * 100
-  const monthlyROI = roi / timeframe
+  const calculateROI = () => {
+    const inv = Number.parseFloat(investment)
+    const rev = Number.parseFloat(revenue)
+    if (inv && rev) {
+      const roiValue = ((rev - inv) / inv) * 100
+      setROI(roiValue)
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
           <Label htmlFor="investment">Initial Investment ($)</Label>
           <Input
             id="investment"
             type="number"
+            placeholder="10000"
             value={investment}
-            onChange={(e) => setInvestment(Number(e.target.value))}
-            placeholder="1000"
+            onChange={(e) => setInvestment(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
+        <div>
           <Label htmlFor="revenue">Total Revenue ($)</Label>
           <Input
             id="revenue"
             type="number"
+            placeholder="15000"
             value={revenue}
-            onChange={(e) => setRevenue(Number(e.target.value))}
-            placeholder="3000"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="timeframe">Timeframe (months)</Label>
-          <Input
-            id="timeframe"
-            type="number"
-            value={timeframe}
-            onChange={(e) => setTimeframe(Number(e.target.value))}
-            placeholder="12"
+            onChange={(e) => setRevenue(e.target.value)}
           />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-green-600">{roi.toFixed(1)}%</CardTitle>
-          <CardDescription>Total ROI</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-blue-600">{monthlyROI.toFixed(1)}%</CardTitle>
-          <CardDescription>Monthly ROI</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-purple-600">
-            ${(revenue - investment).toLocaleString()}
-          </CardTitle>
-          <CardDescription>Net Profit</CardDescription>
-        </Card>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">ROI Analysis</h4>
-        <div className="space-y-2 text-sm">
-          <p>
-            <strong>Investment Performance:</strong>{" "}
-            {roi > 100 ? "Excellent" : roi > 50 ? "Good" : roi > 0 ? "Positive" : "Needs Improvement"}
-          </p>
-          <p>
-            <strong>Recommendation:</strong>{" "}
-            {roi > 100
-              ? "Scale this investment strategy"
-              : roi > 50
-                ? "Continue with current approach"
-                : roi > 0
-                  ? "Optimize for better returns"
-                  : "Reconsider investment strategy"}
-          </p>
+      <Button onClick={calculateROI} className="w-full">
+        Calculate ROI
+      </Button>
+      {roi !== null && (
+        <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-green-600">{roi.toFixed(2)}%</div>
+            <div className="text-sm text-gray-600 mt-1">Return on Investment</div>
+            <div className="mt-2 text-sm">
+              {roi > 0 ? (
+                <span className="text-green-600">✅ Profitable investment</span>
+              ) : (
+                <span className="text-red-600">❌ Loss on investment</span>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
-const EngagementAnalyzer = () => {
-  const [followers, setFollowers] = useState(10000)
-  const [likes, setLikes] = useState(500)
-  const [comments, setComments] = useState(50)
-  const [shares, setShares] = useState(25)
+// Engagement Rate Calculator
+function EngagementCalculator() {
+  const [followers, setFollowers] = useState("")
+  const [likes, setLikes] = useState("")
+  const [comments, setComments] = useState("")
+  const [shares, setShares] = useState("")
+  const [engagementRate, setEngagementRate] = useState<number | null>(null)
 
-  const engagementRate = ((likes + comments + shares) / followers) * 100
+  const calculateEngagement = () => {
+    const f = Number.parseFloat(followers)
+    const l = Number.parseFloat(likes) || 0
+    const c = Number.parseFloat(comments) || 0
+    const s = Number.parseFloat(shares) || 0
+
+    if (f) {
+      const rate = ((l + c + s) / f) * 100
+      setEngagementRate(rate)
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
+        <div>
           <Label htmlFor="followers">Total Followers</Label>
           <Input
             id="followers"
             type="number"
-            value={followers}
-            onChange={(e) => setFollowers(Number(e.target.value))}
             placeholder="10000"
+            value={followers}
+            onChange={(e) => setFollowers(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="likes">Average Likes per Post</Label>
-          <Input
-            id="likes"
-            type="number"
-            value={likes}
-            onChange={(e) => setLikes(Number(e.target.value))}
-            placeholder="500"
-          />
+        <div>
+          <Label htmlFor="likes">Average Likes</Label>
+          <Input id="likes" type="number" placeholder="500" value={likes} onChange={(e) => setLikes(e.target.value)} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="comments">Average Comments per Post</Label>
+        <div>
+          <Label htmlFor="comments">Average Comments</Label>
           <Input
             id="comments"
             type="number"
-            value={comments}
-            onChange={(e) => setComments(Number(e.target.value))}
             placeholder="50"
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="shares">Average Shares per Post</Label>
+        <div>
+          <Label htmlFor="shares">Average Shares</Label>
           <Input
             id="shares"
             type="number"
-            value={shares}
-            onChange={(e) => setShares(Number(e.target.value))}
             placeholder="25"
+            value={shares}
+            onChange={(e) => setShares(e.target.value)}
           />
         </div>
       </div>
-
-      <Card className="text-center p-6">
-        <CardTitle className="text-4xl font-bold text-blue-600 mb-2">{engagementRate.toFixed(2)}%</CardTitle>
-        <CardDescription className="text-lg">Engagement Rate</CardDescription>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="text-center p-4">
-          <CardTitle className="text-xl font-bold text-green-600">{likes.toLocaleString()}</CardTitle>
-          <CardDescription>Avg Likes</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-xl font-bold text-purple-600">{comments.toLocaleString()}</CardTitle>
-          <CardDescription>Avg Comments</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-xl font-bold text-orange-600">{shares.toLocaleString()}</CardTitle>
-          <CardDescription>Avg Shares</CardDescription>
-        </Card>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">Engagement Analysis</h4>
-        <div className="space-y-2 text-sm">
-          <p>
-            <strong>Performance:</strong>{" "}
-            {engagementRate > 6
-              ? "Excellent (6%+)"
-              : engagementRate > 3
-                ? "Good (3-6%)"
-                : engagementRate > 1
-                  ? "Average (1-3%)"
-                  : "Below Average (<1%)"}
-          </p>
-          <p>
-            <strong>Industry Benchmark:</strong> Most accounts see 1-3% engagement rate
-          </p>
-          <p>
-            <strong>Tip:</strong> Focus on creating more interactive content to boost engagement
-          </p>
+      <Button onClick={calculateEngagement} className="w-full">
+        Calculate Engagement Rate
+      </Button>
+      {engagementRate !== null && (
+        <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-purple-600">{engagementRate.toFixed(2)}%</div>
+            <div className="text-sm text-gray-600 mt-1">Engagement Rate</div>
+            <div className="mt-2 text-sm">
+              {engagementRate > 3 ? (
+                <span className="text-green-600">🔥 Excellent engagement!</span>
+              ) : engagementRate > 1 ? (
+                <span className="text-yellow-600">👍 Good engagement</span>
+              ) : (
+                <span className="text-red-600">📈 Room for improvement</span>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
-const NewsletterTracker = () => {
-  const [currentSubscribers, setCurrentSubscribers] = useState(1000)
-  const [monthlyGrowth, setMonthlyGrowth] = useState([5])
-  const [openRate, setOpenRate] = useState([25])
+// Newsletter Growth Tracker
+function GrowthTracker() {
+  const [currentSubs, setCurrentSubs] = useState("")
+  const [targetSubs, setTargetSubs] = useState("")
+  const [timeframe, setTimeframe] = useState("")
+  const [growthNeeded, setGrowthNeeded] = useState<number | null>(null)
 
-  const projectedGrowth = currentSubscribers * (1 + monthlyGrowth[0] / 100)
-  const yearlyProjection = currentSubscribers * Math.pow(1 + monthlyGrowth[0] / 100, 12)
+  const calculateGrowth = () => {
+    const current = Number.parseFloat(currentSubs)
+    const target = Number.parseFloat(targetSubs)
+    const time = Number.parseFloat(timeframe)
+
+    if (current && target && time) {
+      const needed = (target - current) / time
+      setGrowthNeeded(needed)
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="subscribers">Current Subscribers</Label>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="current">Current Subscribers</Label>
           <Input
-            id="subscribers"
+            id="current"
             type="number"
-            value={currentSubscribers}
-            onChange={(e) => setCurrentSubscribers(Number(e.target.value))}
             placeholder="1000"
+            value={currentSubs}
+            onChange={(e) => setCurrentSubs(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Monthly Growth Rate: {monthlyGrowth[0]}%</Label>
-          <Slider
-            value={monthlyGrowth}
-            onValueChange={setMonthlyGrowth}
-            max={20}
-            min={0}
-            step={0.5}
-            className="w-full"
+        <div>
+          <Label htmlFor="target">Target Subscribers</Label>
+          <Input
+            id="target"
+            type="number"
+            placeholder="10000"
+            value={targetSubs}
+            onChange={(e) => setTargetSubs(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="timeframe">Timeframe (months)</Label>
+          <Input
+            id="timeframe"
+            type="number"
+            placeholder="12"
+            value={timeframe}
+            onChange={(e) => setTimeframe(e.target.value)}
           />
         </div>
       </div>
-
-      <div className="space-y-2">
-        <Label>Open Rate: {openRate[0]}%</Label>
-        <Slider value={openRate} onValueChange={setOpenRate} max={50} min={5} step={1} className="w-full" />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-blue-600">
-            {Math.round(projectedGrowth).toLocaleString()}
-          </CardTitle>
-          <CardDescription>Next Month Projection</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-green-600">
-            {Math.round(yearlyProjection).toLocaleString()}
-          </CardTitle>
-          <CardDescription>12-Month Projection</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-purple-600">{openRate[0]}%</CardTitle>
-          <CardDescription>Open Rate</CardDescription>
-        </Card>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">Growth Analysis</h4>
-        <div className="space-y-2 text-sm">
-          <p>
-            <strong>Growth Rate:</strong>{" "}
-            {monthlyGrowth[0] > 10
-              ? "Exceptional"
-              : monthlyGrowth[0] > 5
-                ? "Strong"
-                : monthlyGrowth[0] > 2
-                  ? "Steady"
-                  : "Slow"}
-          </p>
-          <p>
-            <strong>Open Rate:</strong>{" "}
-            {openRate[0] > 25 ? "Excellent" : openRate[0] > 20 ? "Good" : openRate[0] > 15 ? "Average" : "Needs Work"}
-          </p>
-          <p>
-            <strong>Yearly Growth:</strong> +
-            {Math.round(((yearlyProjection - currentSubscribers) / currentSubscribers) * 100)}%
-          </p>
+      <Button onClick={calculateGrowth} className="w-full">
+        Calculate Growth Needed
+      </Button>
+      {growthNeeded !== null && (
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-blue-600">{Math.ceil(growthNeeded)}</div>
+            <div className="text-sm text-gray-600 mt-1">New subscribers needed per month</div>
+            <div className="mt-2 text-sm">
+              <span className="text-blue-600">
+                📊 That's about {Math.ceil(growthNeeded / 30)} new subscribers per day
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
-const ContentCalendar = () => {
-  const [postsPerWeek, setPostsPerWeek] = useState(5)
-  const [platforms, setPlatforms] = useState(3)
+// Content Calendar Generator
+function ContentCalendar() {
+  const [contentType, setContentType] = useState("")
+  const [frequency, setFrequency] = useState("")
+  const [topics, setTopics] = useState<string[]>([])
 
-  const monthlyPosts = postsPerWeek * 4
-  const totalContent = monthlyPosts * platforms
+  const generateCalendar = () => {
+    const topicSuggestions = [
+      "Industry Trends Analysis",
+      "Expert Interview",
+      "How-to Guide",
+      "Case Study",
+      "Tool Review",
+      "Behind the Scenes",
+      "User Generated Content",
+      "FAQ Session",
+      "Product Update",
+      "Community Spotlight",
+    ]
 
-  const contentTypes = [
-    "Educational Posts",
-    "Behind-the-Scenes",
-    "User-Generated Content",
-    "Product Updates",
-    "Industry News",
-    "Tips & Tricks",
-    "Case Studies",
-  ]
+    const shuffled = topicSuggestions.sort(() => 0.5 - Math.random())
+    setTopics(shuffled.slice(0, 5))
+  }
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="posts">Posts per Week</Label>
-          <Input
-            id="posts"
-            type="number"
-            value={postsPerWeek}
-            onChange={(e) => setPostsPerWeek(Number(e.target.value))}
-            placeholder="5"
-          />
+        <div>
+          <Label htmlFor="contentType">Content Type</Label>
+          <Select value={contentType} onValueChange={setContentType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select content type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newsletter">Newsletter</SelectItem>
+              <SelectItem value="blog">Blog Posts</SelectItem>
+              <SelectItem value="social">Social Media</SelectItem>
+              <SelectItem value="video">Video Content</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="platforms">Number of Platforms</Label>
-          <Input
-            id="platforms"
-            type="number"
-            value={platforms}
-            onChange={(e) => setPlatforms(Number(e.target.value))}
-            placeholder="3"
-          />
+        <div>
+          <Label htmlFor="frequency">Publishing Frequency</Label>
+          <Select value={frequency} onValueChange={setFrequency}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select frequency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+              <SelectItem value="weekly">Weekly</SelectItem>
+              <SelectItem value="biweekly">Bi-weekly</SelectItem>
+              <SelectItem value="monthly">Monthly</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-blue-600">{monthlyPosts}</CardTitle>
-          <CardDescription>Posts per Month</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-green-600">{totalContent}</CardTitle>
-          <CardDescription>Total Content Pieces</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-purple-600">{Math.round(totalContent / 7)}</CardTitle>
-          <CardDescription>Content per Day</CardDescription>
-        </Card>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-3">Suggested Content Mix</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {contentTypes.map((type, index) => (
-            <div key={type} className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span className="text-sm">{type}</span>
+      <Button onClick={generateCalendar} className="w-full">
+        Generate Content Ideas
+      </Button>
+      {topics.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="font-semibold">Content Ideas for This Month:</h4>
+          {topics.map((topic, index) => (
+            <div key={index} className="p-3 bg-gray-50 rounded-lg border-l-4 border-purple-500">
+              <div className="font-medium">{topic}</div>
+              <div className="text-sm text-gray-600 mt-1">
+                Week {index + 1} • {contentType} content
+              </div>
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2 text-blue-800">Content Calendar Tips</h4>
-        <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Plan content 2-4 weeks in advance</li>
-          <li>• Batch create similar content types</li>
-          <li>• Leave 20% flexibility for trending topics</li>
-          <li>• Track performance and adjust strategy</li>
-        </ul>
-      </div>
+      )}
     </div>
   )
 }
 
-const AudienceTargeting = () => {
-  const [ageRange, setAgeRange] = useState([25, 45])
-  const [interests, setInterests] = useState("")
-  const [location, setLocation] = useState("")
-  const [budget, setBudget] = useState(1000)
+// Audience Targeting Tool
+function AudienceTargeting() {
+  const [industry, setIndustry] = useState("")
+  const [role, setRole] = useState("")
+  const [experience, setExperience] = useState("")
+  const [targeting, setTargeting] = useState<any>(null)
 
-  const estimatedReach = Math.round((budget / 2) * 1000 * (1 + Math.random() * 0.5))
+  const generateTargeting = () => {
+    const suggestions = {
+      demographics: ["25-45 years old", "College educated", "Urban/Suburban"],
+      interests: ["Professional development", "Industry trends", "Productivity tools"],
+      platforms: ["LinkedIn", "Twitter", "Industry forums"],
+      content: ["Educational content", "Case studies", "Expert insights"],
+      timing: ["Tuesday-Thursday", "9-11 AM", "2-4 PM"],
+    }
+    setTargeting(suggestions)
+  }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>
-            Age Range: {ageRange[0]} - {ageRange[1]} years
-          </Label>
-          <Slider value={ageRange} onValueChange={setAgeRange} max={65} min={18} step={1} className="w-full" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="budget">Monthly Budget ($)</Label>
-          <Input
-            id="budget"
-            type="number"
-            value={budget}
-            onChange={(e) => setBudget(Number(e.target.value))}
-            placeholder="1000"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="interests">Interests (comma-separated)</Label>
-          <Input
-            id="interests"
-            value={interests}
-            onChange={(e) => setInterests(e.target.value)}
-            placeholder="technology, business, marketing"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="location">Target Location</Label>
-          <Input
-            id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="United States, Canada"
-          />
-        </div>
-      </div>
-
-      <Card className="text-center p-6">
-        <CardTitle className="text-4xl font-bold text-green-600 mb-2">{estimatedReach.toLocaleString()}</CardTitle>
-        <CardDescription className="text-lg">Estimated Monthly Reach</CardDescription>
-      </Card>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="text-center p-4">
-          <CardTitle className="text-xl font-bold text-blue-600">
-            ${((budget / estimatedReach) * 1000).toFixed(3)}
-          </CardTitle>
-          <CardDescription>Cost per 1K Reach</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-xl font-bold text-purple-600">
-            {Math.round(estimatedReach * 0.02).toLocaleString()}
-          </CardTitle>
-          <CardDescription>Est. Clicks (2% CTR)</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-xl font-bold text-orange-600">
-            {Math.round(estimatedReach * 0.002).toLocaleString()}
-          </CardTitle>
-          <CardDescription>Est. Conversions (0.2%)</CardDescription>
-        </Card>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">Targeting Recommendations</h4>
-        <div className="space-y-2 text-sm">
-          <p>
-            <strong>Age Group:</strong> {ageRange[0]}-{ageRange[1]} years is{" "}
-            {ageRange[1] - ageRange[0] > 20 ? "broad" : "focused"} targeting
-          </p>
-          <p>
-            <strong>Budget Efficiency:</strong>{" "}
-            {budget > 2000 ? "High budget allows for extensive testing" : "Consider starting with broader targeting"}
-          </p>
-          <p>
-            <strong>Tip:</strong> Start broad and narrow down based on performance data
-          </p>
+        <div>
+          <Label htmlFor="industry">Industry</Label>
+          <Select value={industry} onValueChange={setIndustry}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select industry" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="tech">Technology</SelectItem>
+              <SelectItem value="finance">Finance</SelectItem>
+              <SelectItem value="healthcare">Healthcare</SelectItem>
+              <SelectItem value="education">Education</SelectItem>
+              <SelectItem value="marketing">Marketing</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="role">Target Role</Label>
+          <Select value={role} onValueChange={setRole}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="manager">Manager</SelectItem>
+              <SelectItem value="director">Director</SelectItem>
+              <SelectItem value="executive">Executive</SelectItem>
+              <SelectItem value="individual">Individual Contributor</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="experience">Experience Level</Label>
+          <Select value={experience} onValueChange={setExperience}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select experience" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="entry">Entry Level (0-2 years)</SelectItem>
+              <SelectItem value="mid">Mid Level (3-7 years)</SelectItem>
+              <SelectItem value="senior">Senior Level (8+ years)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
+      <Button onClick={generateTargeting} className="w-full">
+        Generate Targeting Strategy
+      </Button>
+      {targeting && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Object.entries(targeting).map(([key, values]: [string, any]) => (
+            <div key={key} className="p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-semibold capitalize mb-2">{key}</h4>
+              <ul className="space-y-1">
+                {values.map((value: string, index: number) => (
+                  <li key={index} className="text-sm text-gray-600 flex items-center">
+                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                    {value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-const RevenueForecasting = () => {
-  const [currentRevenue, setCurrentRevenue] = useState(10000)
-  const [growthRate, setGrowthRate] = useState([15])
-  const [marketSize, setMarketSize] = useState(1000000)
+// Revenue Forecasting Tool
+function RevenueForecasting() {
+  const [subscribers, setSubscribers] = useState("")
+  const [conversionRate, setConversionRate] = useState("")
+  const [avgRevenue, setAvgRevenue] = useState("")
+  const [forecast, setForecast] = useState<any>(null)
 
-  const monthlyGrowth = currentRevenue * (growthRate[0] / 100)
-  const yearlyProjection = currentRevenue * Math.pow(1 + growthRate[0] / 100, 12)
-  const marketPenetration = (yearlyProjection / marketSize) * 100
+  const calculateForecast = () => {
+    const subs = Number.parseFloat(subscribers)
+    const conversion = Number.parseFloat(conversionRate) / 100
+    const revenue = Number.parseFloat(avgRevenue)
+
+    if (subs && conversion && revenue) {
+      const monthly = subs * conversion * revenue
+      const quarterly = monthly * 3
+      const yearly = monthly * 12
+
+      setForecast({
+        monthly: monthly.toFixed(2),
+        quarterly: quarterly.toFixed(2),
+        yearly: yearly.toFixed(2),
+        customers: Math.round(subs * conversion),
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="revenue">Current Monthly Revenue ($)</Label>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="subscribers">Total Subscribers</Label>
+          <Input
+            id="subscribers"
+            type="number"
+            placeholder="10000"
+            value={subscribers}
+            onChange={(e) => setSubscribers(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="conversion">Conversion Rate (%)</Label>
+          <Input
+            id="conversion"
+            type="number"
+            placeholder="2.5"
+            value={conversionRate}
+            onChange={(e) => setConversionRate(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="revenue">Avg Revenue per Customer ($)</Label>
           <Input
             id="revenue"
             type="number"
-            value={currentRevenue}
-            onChange={(e) => setCurrentRevenue(Number(e.target.value))}
-            placeholder="10000"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="market">Total Market Size ($)</Label>
-          <Input
-            id="market"
-            type="number"
-            value={marketSize}
-            onChange={(e) => setMarketSize(Number(e.target.value))}
-            placeholder="1000000"
+            placeholder="99"
+            value={avgRevenue}
+            onChange={(e) => setAvgRevenue(e.target.value)}
           />
         </div>
       </div>
-
-      <div className="space-y-2">
-        <Label>Monthly Growth Rate: {growthRate[0]}%</Label>
-        <Slider value={growthRate} onValueChange={setGrowthRate} max={50} min={0} step={1} className="w-full" />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-green-600">
-            ${Math.round(yearlyProjection).toLocaleString()}
-          </CardTitle>
-          <CardDescription>12-Month Projection</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-blue-600">
-            ${Math.round(monthlyGrowth).toLocaleString()}
-          </CardTitle>
-          <CardDescription>Monthly Growth</CardDescription>
-        </Card>
-        <Card className="text-center p-4">
-          <CardTitle className="text-2xl font-bold text-purple-600">{marketPenetration.toFixed(2)}%</CardTitle>
-          <CardDescription>Market Penetration</CardDescription>
-        </Card>
-      </div>
-
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">Revenue Forecast Analysis</h4>
-        <div className="space-y-2 text-sm">
-          <p>
-            <strong>Growth Trajectory:</strong>{" "}
-            {growthRate[0] > 20
-              ? "Aggressive growth"
-              : growthRate[0] > 10
-                ? "Strong growth"
-                : growthRate[0] > 5
-                  ? "Steady growth"
-                  : "Conservative growth"}
-          </p>
-          <p>
-            <strong>Market Opportunity:</strong>{" "}
-            {marketPenetration < 1
-              ? "Large untapped market"
-              : marketPenetration < 5
-                ? "Good growth potential"
-                : "Significant market share"}
-          </p>
-          <p>
-            <strong>Annual Revenue Growth:</strong> +
-            {Math.round(((yearlyProjection - currentRevenue * 12) / (currentRevenue * 12)) * 100)}%
-          </p>
+      <Button onClick={calculateForecast} className="w-full">
+        Calculate Revenue Forecast
+      </Button>
+      {forecast && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 bg-green-50 rounded-lg text-center">
+            <div className="text-2xl font-bold text-green-600">{forecast.customers}</div>
+            <div className="text-sm text-gray-600">Customers</div>
+          </div>
+          <div className="p-4 bg-blue-50 rounded-lg text-center">
+            <div className="text-2xl font-bold text-blue-600">${forecast.monthly}</div>
+            <div className="text-sm text-gray-600">Monthly</div>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg text-center">
+            <div className="text-2xl font-bold text-purple-600">${forecast.quarterly}</div>
+            <div className="text-sm text-gray-600">Quarterly</div>
+          </div>
+          <div className="p-4 bg-orange-50 rounded-lg text-center">
+            <div className="text-2xl font-bold text-orange-600">${forecast.yearly}</div>
+            <div className="text-sm text-gray-600">Yearly</div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
-}
-
-const toolComponents = {
-  ROICalculator,
-  EngagementAnalyzer,
-  NewsletterTracker,
-  ContentCalendar,
-  AudienceTargeting,
-  RevenueForecasting,
 }
 
 export default function ToolsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
-  const [filteredTools, setFilteredTools] = useState(tools)
   const [selectedTool, setSelectedTool] = useState<string | null>(null)
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
-  const cardsRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
+
+  const tools: Tool[] = [
+    {
+      id: "roi-calculator",
+      name: "ROI Calculator",
+      description: "Calculate return on investment for your marketing campaigns and business initiatives.",
+      category: "Analytics",
+      icon: <Calculator className="w-6 h-6" />,
+      difficulty: "Beginner",
+      estimatedTime: "2 minutes",
+      component: <ROICalculator />,
+    },
+    {
+      id: "engagement-analyzer",
+      name: "Engagement Rate Analyzer",
+      description: "Analyze your social media engagement rates and get insights for improvement.",
+      category: "Analytics",
+      icon: <TrendingUp className="w-6 h-6" />,
+      difficulty: "Beginner",
+      estimatedTime: "3 minutes",
+      component: <EngagementCalculator />,
+    },
+    {
+      id: "growth-tracker",
+      name: "Newsletter Growth Tracker",
+      description: "Track your newsletter growth and set realistic subscriber targets.",
+      category: "Growth",
+      icon: <Users className="w-6 h-6" />,
+      difficulty: "Intermediate",
+      estimatedTime: "5 minutes",
+      component: <GrowthTracker />,
+    },
+    {
+      id: "content-calendar",
+      name: "Content Calendar Generator",
+      description: "Generate content ideas and plan your publishing schedule.",
+      category: "Content",
+      icon: <Calendar className="w-6 h-6" />,
+      difficulty: "Beginner",
+      estimatedTime: "3 minutes",
+      component: <ContentCalendar />,
+    },
+    {
+      id: "audience-targeting",
+      name: "Audience Targeting Tool",
+      description: "Define and refine your target audience for better marketing results.",
+      category: "Marketing",
+      icon: <Target className="w-6 h-6" />,
+      difficulty: "Intermediate",
+      estimatedTime: "10 minutes",
+      component: <AudienceTargeting />,
+    },
+    {
+      id: "revenue-forecasting",
+      name: "Revenue Forecasting",
+      description: "Forecast your revenue based on subscriber growth and conversion rates.",
+      category: "Analytics",
+      icon: <DollarSign className="w-6 h-6" />,
+      difficulty: "Advanced",
+      estimatedTime: "5 minutes",
+      component: <RevenueForecasting />,
+    },
+  ]
+
+  const categories = ["All", "Analytics", "Growth", "Content", "Marketing"]
+
+  const filteredTools = tools.filter((tool) => {
+    const matchesSearch =
+      tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tool.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategory === "All" || tool.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Header animation
-      gsap.from(headerRef.current?.children, {
+      // Hero section animation
+      gsap.from(".hero-content", {
         y: 50,
         opacity: 0,
         duration: 1,
-        stagger: 0.2,
         ease: "power3.out",
       })
 
-      // Cards animation with hover effects
-      gsap.from(cardsRef.current?.children, {
-        y: 80,
+      // Tools grid animation
+      gsap.from(".tool-card", {
+        y: 30,
         opacity: 0,
-        duration: 1,
+        duration: 0.8,
         stagger: 0.1,
         ease: "power3.out",
         delay: 0.3,
+        scrollTrigger: {
+          trigger: ".tools-grid",
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
       })
-    }, sectionRef)
+    }, pageRef)
 
     return () => ctx.revert()
   }, [filteredTools])
 
-  useEffect(() => {
-    let filtered = tools
-
-    if (selectedCategory !== "All") {
-      filtered = filtered.filter((tool) => tool.category === selectedCategory)
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Beginner":
+        return "bg-green-100 text-green-800"
+      case "Intermediate":
+        return "bg-yellow-100 text-yellow-800"
+      case "Advanced":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (tool) =>
-          tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tool.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tool.category.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
-
-    setFilteredTools(filtered)
-  }, [searchTerm, selectedCategory])
-
-  const renderToolComponent = (componentName: string) => {
-    const Component = toolComponents[componentName as keyof typeof toolComponents]
-    return Component ? <Component /> : <div>Tool component not found</div>
   }
 
   if (selectedTool) {
-    const tool = tools.find((t) => t.component === selectedTool)
-    if (!tool) return <div>Tool not found</div>
+    const tool = tools.find((t) => t.id === selectedTool)
+    if (!tool) return null
 
     return (
-      <div className="min-h-screen bg-gray-50 pt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white pt-20">
+        <div className="max-w-4xl mx-auto px-6 py-12">
+          <Button variant="ghost" onClick={() => setSelectedTool(null)} className="mb-6">
+            ← Back to Tools
+          </Button>
+
           <div className="mb-8">
-            <Button variant="outline" onClick={() => setSelectedTool(null)} className="mb-4">
-              ← Back to Tools
-            </Button>
-            <div className="flex items-center space-x-4 mb-6">
-              <div className={`w-12 h-12 ${tool.bgColor} rounded-xl flex items-center justify-center`}>
-                <tool.icon className={`w-6 h-6 ${tool.color}`} />
-              </div>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl text-white">{tool.icon}</div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{tool.title}</h1>
-                <p className="text-gray-600">{tool.description}</p>
+                <h1 className="text-3xl font-bold text-gray-900">{tool.name}</h1>
+                <p className="text-gray-600 mt-1">{tool.description}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Badge className={getDifficultyColor(tool.difficulty)}>{tool.difficulty}</Badge>
+              <div className="flex items-center text-sm text-gray-500">
+                <Clock className="w-4 h-4 mr-1" />
+                {tool.estimatedTime}
               </div>
             </div>
           </div>
 
-          <Card className="border-0 shadow-lg">
-            <CardContent className="p-8">{renderToolComponent(tool.component)}</CardContent>
+          <Card>
+            <CardContent className="p-8">{tool.component}</CardContent>
           </Card>
         </div>
       </div>
@@ -728,147 +655,99 @@ export default function ToolsPage() {
   }
 
   return (
-    <div ref={sectionRef} className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div ref={headerRef} className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Professional Tools</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Powerful calculators and analyzers to optimize your content strategy and maximize your impact.
+    <div ref={pageRef} className="min-h-screen bg-gradient-to-br from-slate-50 to-white pt-20">
+      {/* Hero Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center hero-content">
+          <div className="flex items-center justify-center mb-6">
+            <div className="p-4 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl text-white">
+              <Zap className="w-8 h-8" />
+            </div>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            Powerful Tools for
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+              Creator Success
+            </span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Free, professional-grade tools to help you grow your audience, analyze performance, and maximize revenue.
           </p>
 
           {/* Search and Filter */}
-          <div className="max-w-2xl mx-auto space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                type="text"
                 placeholder="Search tools..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 py-3 text-lg"
+                className="pl-10"
               />
             </div>
-
-            <div className="flex flex-wrap justify-center gap-2">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className={selectedCategory === category ? "bg-purple-600 hover:bg-purple-700" : ""}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full md:w-48">
+                <Filter className="w-4 h-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
+      </section>
 
-        {/* Results Count */}
-        <div className="mb-8">
-          <p className="text-gray-600">
-            Showing {filteredTools.length} of {tools.length} tools
-          </p>
-        </div>
-
-        {/* Tools Grid */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTools.map((tool) => (
-            <Card
-              key={tool.id}
-              className="group hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden border-0 shadow-lg"
-            >
-              <CardHeader className="text-center pb-4">
-                <div
-                  className={`w-16 h-16 ${tool.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <tool.icon className={`w-8 h-8 ${tool.color}`} />
-                </div>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Badge className="bg-purple-600 text-white">{tool.category}</Badge>
-                  {tool.featured && (
-                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                      Featured
-                    </Badge>
-                  )}
-                </div>
-                <CardTitle className="group-hover:text-purple-600 transition-colors">{tool.title}</CardTitle>
-                <CardDescription className="text-center">{tool.description}</CardDescription>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <Button
-                    className="w-full bg-purple-600 hover:bg-purple-700 group/btn"
-                    onClick={() => setSelectedTool(tool.component)}
-                  >
-                    <Calculator className="mr-2 w-4 h-4" />
-                    Use Tool
-                    <ExternalLink className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-
-                  <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Zap className="w-4 h-4 mr-1 text-yellow-500" />
-                      Instant Results
+      {/* Tools Grid */}
+      <section className="pb-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="tools-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredTools.map((tool) => (
+              <Card
+                key={tool.id}
+                className="tool-card group cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                onClick={() => setSelectedTool(tool.id)}
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl text-white group-hover:scale-110 transition-transform duration-300">
+                      {tool.icon}
                     </div>
-                    <div className="flex items-center">
-                      <BarChart3 className="w-4 h-4 mr-1 text-blue-500" />
-                      Data-Driven
-                    </div>
+                    <Badge className={getDifficultyColor(tool.difficulty)}>{tool.difficulty}</Badge>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredTools.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Calculator className="w-16 h-16 mx-auto mb-4" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No tools found</h3>
-            <p className="text-gray-600">Try adjusting your search terms or filters.</p>
+                  <CardTitle className="text-xl group-hover:text-purple-600 transition-colors">{tool.name}</CardTitle>
+                  <CardDescription className="text-gray-600">{tool.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {tool.estimatedTime}
+                    </div>
+                    <Badge variant="outline" className="text-purple-600 border-purple-200">
+                      {tool.category}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        )}
 
-        {/* Featured Tool Spotlight */}
-        <div className="mt-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 text-white">
-          <div className="max-w-4xl mx-auto text-center">
-            <h3 className="text-3xl font-bold mb-4">Tool Spotlight: ROI Calculator</h3>
-            <p className="text-purple-100 mb-6 text-lg">
-              Our most popular tool helps content creators calculate accurate return on investment using real-time data
-              and advanced analytics algorithms.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold">99.2%</div>
-                <div className="text-purple-100">Accuracy Rate</div>
+          {filteredTools.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Search className="w-12 h-12 mx-auto" />
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">50K+</div>
-                <div className="text-purple-100">Calculations Daily</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">15%</div>
-                <div className="text-purple-100">Average ROI Improvement</div>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No tools found</h3>
+              <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
             </div>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="bg-white text-purple-600 hover:bg-gray-100"
-              onClick={() => setSelectedTool("ROICalculator")}
-            >
-              Try It Now
-              <ExternalLink className="ml-2 w-5 h-5" />
-            </Button>
-          </div>
+          )}
         </div>
-      </div>
+      </section>
     </div>
   )
 }

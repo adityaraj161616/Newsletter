@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
@@ -51,7 +51,7 @@ export default function NewArticlePage() {
   }
 
   // Load from localStorage on mount
-  useState(() => {
+  useEffect(() => {
     const saved = localStorage.getItem("article-draft")
     if (saved) {
       try {
